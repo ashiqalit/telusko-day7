@@ -1,37 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>URL Shortener</title>
+  <title>URL Shortener</title>
 </head>
 <body>
-    <h1>URL Shortener</h1>
-    <form id="urlForm">
-        <label for="longUrlInput">Long URL:</label>
-        <input type="text" id="longUrlInput" name="longUrl" required>
-        <button type="submit">Generate Short URL</button>
-    </form>
-    <div id="shortUrlContainer"></div>
+  <h1>URL Shortener</h1>
+  <form id="urlForm">
+    <label for="longUrl">Enter a Long URL:</label>
+    <input type="text" id="longUrl" name="longUrl" required>
+    <button type="submit">Generate Short URL</button>
+  </form>
 
-    <script>
-        document.getElementById("urlForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            generateShortURL();
-        });
+  <div id="shortUrlContainer">
+    <h3>Short URL:</h3>
+    <p id="shortUrl"></p>
+  </div>
 
-        function generateShortURL() {
-            var longURL = document.getElementById("longUrlInput").value;
-            fetch('/generate', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'longURL=' + encodeURIComponent(longURL)
-            })
-            .then(response => response.text())
-            .then(shortURL => {
-                document.getElementById("shortUrlContainer").innerHTML = "Short URL: " + shortURL;
-            });
-        }
-    </script>
+  <script>
+  
+  document.getElementById("urlForm").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  var longUrlInput = document.getElementById("longUrl");
+  var longUrl = longUrlInput.value;
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", "http://localhost:8080/generate");
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+      if (xhr.status === 200) {
+        var shortUrl = xhr.responseText;
+        document.getElementById("shortUrl").textContent = shortUrl;
+        document.getElementById("shortUrlContainer").style.display = "block";
+      } else {
+        console.log("Error: " + xhr.status);
+      }
+    }
+  };
+  xhr.send("longUrl=" + encodeURIComponent(longUrl));
+
+  longUrlInput.value = "";
+});
+
+  
+  </script>
 </body>
 </html>
+
